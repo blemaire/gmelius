@@ -50,7 +50,8 @@ export default Vue.extend({
         sortable: false,
         value: "name"
       },
-      { text: "Description", value: "description" }
+      { text: "Description", value: "description" },
+      { text: "ABV", value: "abv"}
     ],
     loading: true,
     page: 1,
