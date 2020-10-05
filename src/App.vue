@@ -34,20 +34,20 @@
     </v-app-bar>
 
     <v-main>
-      <HelloWorld />
+      <Beverages />
     </v-main>
   </v-app>
 </template>
 
 <script lang="ts">
 import Vue from "vue";
-import HelloWorld from "./components/HelloWorld.vue";
+import Beverages from "./components/Beverages.vue";
 
 export default Vue.extend({
   name: "App",
 
   components: {
-    HelloWorld
+    Beverages
   },
 
   data: () => ({
