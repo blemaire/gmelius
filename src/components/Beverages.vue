@@ -65,16 +65,9 @@ export default Vue.extend({
   }),
 
   methods: {
-    fetchBeverages(options: FetchParams) {
-      // const isNewPage = options.page * options.itemsPerPage > this.beers.length;
-      //
-      // if (!isNewPage) {
-      //   return;
-      // }
-
-      const stringParams = this.buildSearchParams({ ...options });
-
+    fetchBeverages(options: FetchParams): void {
       this.loading = true;
+      const stringParams = this.buildSearchParams({ ...options });
 
       fetch(
         `https://api.punkapi.com/v2/beers${
@@ -84,7 +77,9 @@ export default Vue.extend({
         .then(res => res.json())
         .then(response => {
           if (response.length === 0) {
+            // We retrieved the last page but it's empty, go back one page
             this.lastPage = options.page - 1;
+            this.total = this.lastPage * options.itemsPerPage;
             this.options.page = this.lastPage;
             return;
           }
@@ -92,8 +87,9 @@ export default Vue.extend({
           let newTotal =
             (options.page - 1) * options.itemsPerPage + response.length;
 
-          if (response.length === options.itemsPerPage) {
-            // if the current page is full add at least one to the total to enable the 'next page' button.
+          if (this.lastPage === 0 && response.length === options.itemsPerPage) {
+            // While we haven't found the last page, we must add 1 to the total number of pages to enable the 'next page' button.
+            // We could be smarter here and automatically fetch the next page to have the real total.
             newTotal++;
           }
 
@@ -106,7 +102,7 @@ export default Vue.extend({
         });
     },
 
-    buildSearchParams(options: DataOptions | Partial<DataOptions>) {
+    buildSearchParams(options: DataOptions | Partial<DataOptions>): string {
       return Object.entries({
         page: options.page || 1,
         // eslint-disable-next-line @typescript-eslint/camelcase
@@ -122,12 +118,12 @@ export default Vue.extend({
   },
 
   watch: {
-    strongOnly() {
+    strongOnly(): void {
       this.fetchBeverages(this.options);
     },
     options: {
       deep: true,
-      handler(options: DataOptions) {
+      handler(options: DataOptions): void {
         this.fetchBeverages(options);
       }
     }
