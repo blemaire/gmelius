@@ -8,6 +8,11 @@
       </v-col>
     </v-row>
 
+    <v-row>
+      <v-col class="text-lg-right">
+        <v-switch v-model="strongOnly" label="Strong beers only"></v-switch>
+      </v-col>
+    </v-row>
     <v-row class="text-center">
       <v-col cols="12">
         <v-data-table
@@ -49,30 +54,46 @@ export default Vue.extend({
     ],
     loading: true,
     page: 1,
-    pageCount: 0
+    pageCount: 0,
+    strongOnly: false
   }),
 
   created(): void {
-    this.getBeverages(1);
+    this.getBeverages(this.buildSearchParams());
   },
 
   methods: {
-    getBeverages(page: number) {
+    getBeverages(params: string) {
       this.loading = true;
 
-      fetch(`https://api.punkapi.com/v2/beers?page=${page || 0}`)
+      fetch(`https://api.punkapi.com/v2/beers?${params}`)
         .then(res => res.json())
         .then(response => {
           this.beers = response;
           this.loading = false;
         });
+    },
+
+    buildSearchParams() {
+      return Object.entries({
+        page: this.page || 1,
+        // eslint-disable-next-line @typescript-eslint/camelcase
+        abv_gt: this.strongOnly ? 7.5 : 0
+      })
+        .map(([key, value]) => {
+          return `${key}=${value}`;
+        })
+        .join("&");
     }
   },
 
   watch: {
-    page(newPageNumber: number) {
-      this.getBeverages(newPageNumber);
+    page() {
+      this.getBeverages(this.buildSearchParams());
+    },
+    strongOnly() {
+      this.getBeverages(this.buildSearchParams());
     }
-  },
+  }
 });
 </script>
